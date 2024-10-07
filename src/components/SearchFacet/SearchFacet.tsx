@@ -450,6 +450,7 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
         rightIcon={<Toggler isToggled={showHiddenFacets} />}
         w="fit-content"
         fontSize="sm"
+        fontWeight="bold"
         my={2}
       >
         {showHiddenFacets ? 'Hide hidden filters' : 'Show hidden filters'} {`(${hiddenItems.length})`}

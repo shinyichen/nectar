@@ -31,12 +31,11 @@ export const AddToOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((prop
     },
   );
 
-  const { lightText } = useColorModeColors();
+  const { link } = useColorModeColors();
 
   return (
     <Button
       variant="outline"
-      color="gray.500"
       isLoading={isLoading}
       onClick={() => addWorks([identifier])}
       w={28}
@@ -45,7 +44,7 @@ export const AddToOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((prop
     >
       <HStack spacing={1}>
         <Icon as={OrcidInactiveLogo} boxSize={4} aria-hidden />
-        <Text fontSize="xs" color={lightText}>
+        <Text fontSize="xs" color={link}>
           Claim
         </Text>
       </HStack>

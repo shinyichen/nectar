@@ -16,7 +16,7 @@ export const theme = extendTheme(
         '200': '#A0ADE8',
         '300': '#7C8DDF',
         '400': '#576DD6',
-        '500': '#324DCD',
+        '500': '#2442d2',
         '600': '#283EA4',
         '700': '#1E2E7B',
         '800': '#141F52',
@@ -61,13 +61,13 @@ export const theme = extendTheme(
     styles: {
       global: (props: StyleFunctionProps) => ({
         'html, body': {
-          color: mode('gray.600', 'white')(props),
+          color: mode('gray.700', 'white')(props),
           fontSize: 'md',
           fontWeight: 'normal',
           backgroundColor: mode('white', 'gray.800')(props),
         },
         a: {
-          color: mode('blue.400', 'blue.200')(props),
+          color: mode('blue.500', 'blue.200')(props),
         },
       }),
     },
@@ -84,7 +84,7 @@ export const theme = extendTheme(
       },
       Link: (props: StyleFunctionProps) => ({
         baseStyle: {
-          color: mode('blue.400', 'blue.200')(props),
+          color: mode('blue.500', 'blue.200')(props),
         },
         variants: {
           footer: {

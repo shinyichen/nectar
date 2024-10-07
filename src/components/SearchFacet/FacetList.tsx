@@ -535,11 +535,11 @@ export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((pr
     >
       <Text as="span" display="inline-flex" justifyContent="space-between" w="full">
         <Tooltip label={label} placement="right">
-          <Text noOfLines={1} wordBreak="break-word" color={colors.lightText} fontSize="md" fontWeight="medium">
+          <Text noOfLines={1} wordBreak="break-word" color={colors.text} fontSize="md" fontWeight="medium">
             {label}
           </Text>
         </Tooltip>
-        <Text color={colors.lightText} fontSize="md" fontWeight="medium">
+        <Text color={colors.text} fontSize="md" fontWeight="medium">
           {kFormatNumber(node.count)}
         </Text>
       </Text>
