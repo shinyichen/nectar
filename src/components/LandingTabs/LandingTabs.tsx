@@ -97,6 +97,7 @@ const Tab = ({ href, label, active }: ITabProps) => {
       color={active ? highlightForeground : 'gray.50'}
       px={4}
       py={2}
+      minH="44px"
       borderTopRadius={3}
       fontWeight="semibold"
     >

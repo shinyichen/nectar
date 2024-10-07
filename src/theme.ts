@@ -105,7 +105,9 @@ export const theme = extendTheme(
               color: 'gray.50',
               fontWeight: 'medium',
               margin: '2',
+              height: '44px',
               _focus: { boxShadow: 'outline' },
+              minWidth: '44px',
             },
             list: {
               zIndex: '20',

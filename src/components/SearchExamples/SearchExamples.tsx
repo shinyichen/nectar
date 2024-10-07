@@ -1,4 +1,4 @@
-import { Box, Flex, Grid, GridItem, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, GridItem, Text } from '@chakra-ui/react';
 import { useStore } from '@/store';
 import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
 import { examples } from './examples';
@@ -71,9 +71,10 @@ export const SearchExample = (props: ISearchExampleProps) => {
       <Text align="right" fontWeight="semibold" py={2}>
         {label}
       </Text>
-      <Box
-        as="button"
-        type="button"
+      <Button
+        variant="outline"
+        size="md"
+        colorScheme="gray"
         sx={{
           borderRadius: '0',
           border: 'var(--chakra-colors-gray-200) 1px dotted',
@@ -83,13 +84,15 @@ export const SearchExample = (props: ISearchExampleProps) => {
           padding: '2',
           display: 'flex',
           justifyContent: 'center',
+          alignItems: 'center',
           cursor: isClient ? 'pointer' : 'default',
+          height: '44px',
         }}
         className="search-example"
         {...buttonProps}
       >
         {example}
-      </Box>
+      </Button>
     </Grid>
   );
 };
