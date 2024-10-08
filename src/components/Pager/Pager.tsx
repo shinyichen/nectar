@@ -75,7 +75,7 @@ export const Pager = (props: IPagerProps) => {
 
   const title =
     typeof pages[selectedPage].title === 'string' ? (
-      <Heading as="h3" size="md" mt={3} mb={5}>
+      <Heading as="h2" size="md" mt={3} mb={5}>
         {pages[selectedPage].title}
       </Heading>
     ) : typeof pages[selectedPage].title === 'undefined' ? null : (

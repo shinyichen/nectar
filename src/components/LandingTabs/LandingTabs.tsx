@@ -1,4 +1,4 @@
-import { Box, Center, Flex, HStack, Icon, Show, VisuallyHidden } from '@chakra-ui/react';
+import { Box, Center, Flex, Heading, HStack, Icon, Show, VisuallyHidden } from '@chakra-ui/react';
 import { useStore } from '@/store';
 import { AppMode } from '@/types';
 import Image from 'next/image';

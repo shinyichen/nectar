@@ -105,11 +105,8 @@ const HomePage: NextPage = () => {
   );
 
   return (
-    <Box aria-labelledby="form-title" my={8}>
-      <form method="get" action="/search" onSubmit={handleOnSubmit}>
-        <VisuallyHidden as="h2" id="form-title">
-          Modern Search Form
-        </VisuallyHidden>
+    <Box my={8}>
+      <form method="get" action="/search" onSubmit={handleOnSubmit} aria-label="modern search form">
         <Flex direction="column">
           <Box my={2}>
             <SearchBar isLoading={isLoading} />
@@ -147,7 +144,7 @@ const Carousel = () => {
           uniqueId: 'welcome',
           content: (
             <Stack flexDirection="column" textAlign="left" spacing="4">
-              <Heading as="h3">
+              <Heading as="h2">
                 <Text fontWeight="thin">WELCOME TO THE</Text>
                 <Text fontWeight="bold">SciX Digital Library</Text>
               </Heading>
@@ -172,7 +169,7 @@ const Carousel = () => {
           uniqueId: 'explore',
           content: (
             <Stack flexDirection="column" textAlign="left" spacing="4">
-              <Heading as="h3">
+              <Heading as="h2">
                 <Text fontWeight="thin">EXPLORE ACROSS</Text>
                 <Text fontWeight="bold">Science Focus Areas</Text>
               </Heading>
@@ -194,7 +191,7 @@ const Carousel = () => {
           uniqueId: 'discover',
           content: (
             <Stack flexDirection="column" textAlign="left" spacing="4">
-              <Heading as="h3">
+              <Heading as="h2">
                 <Text fontWeight="thin">DISCOVER</Text>
                 <Text fontWeight="bold">Open Science</Text>
               </Heading>
@@ -218,7 +215,7 @@ const Carousel = () => {
           uniqueId: 'new-user',
           content: (
             <Stack flexDirection="column" textAlign="left" spacing="8">
-              <Heading as="h3">
+              <Heading as="h2">
                 <Text fontWeight="thin">NEW USER</Text>
                 <Text fontWeight="bold">Quick Start Guide</Text>
               </Heading>

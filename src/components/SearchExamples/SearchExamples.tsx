@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Grid, GridItem, Text } from '@chakra-ui/react';
+import { Button, Flex, Grid, GridItem, Text } from '@chakra-ui/react';
 import { useStore } from '@/store';
 import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
 import { examples } from './examples';
