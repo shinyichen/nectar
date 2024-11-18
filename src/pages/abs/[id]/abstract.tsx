@@ -17,12 +17,13 @@ import {
   Tbody,
   Td,
   Text,
+  Spinner,
   Tooltip,
   Tr,
   useDisclosure,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { EditIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
+import { CheckCircleIcon, ChevronDownIcon, EditIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
 
 import { createUrlByType } from '@/components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@/components/AllAuthorsModal';
@@ -35,8 +36,8 @@ import { composeNextGSSP } from '@/ssr-utils';
 import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
-import { equals, isNil, path } from 'ramda';
-import { memo, ReactElement } from 'react';
+import { equals, isNil, path, values } from 'ramda';
+import { memo, ReactElement, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import { useSession } from '@/lib/useSession';
@@ -56,6 +57,9 @@ import { parseAPIError } from '@/utils/common/parseAPIError';
 import { fetchSearchSSR, searchKeys, useGetAbstract } from '@/api/search/search';
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 import { getAbstractParams } from '@/api/search/models';
+import { useSettings } from '@/lib/useSettings';
+import { useGetExportCitation } from '@/api/export/export';
+import { exportFormats } from '@/components/CitationExporter';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () =>
@@ -187,6 +191,20 @@ interface IDetailsProps {
 const Details = ({ doc }: IDetailsProps): ReactElement => {
   const arxiv = (doc.identifier ?? ([] as string[])).find((v) => /^arxiv/i.exec(v));
 
+  const { settings } = useSettings();
+  const { defaultExportFormat, customFormats } = settings;
+  const [selectedCiteFormat, setSelectedCiteFormat] = useState<string>('BibTeX');
+
+  useEffect(() => {
+    setSelectedCiteFormat(defaultExportFormat);
+  }, [defaultExportFormat]);
+
+  const { data: citationData, isLoading: isLoadingCitation } = useGetExportCitation({
+    format: values(exportFormats).find((f) => f.label === selectedCiteFormat).id,
+    customFormat: selectedCiteFormat === exportFormats.custom.label ? customFormats[0].code : undefined,
+    bibcode: [doc.bibcode],
+  });
+
   return (
     <Box as="section" border="1px" borderColor="gray.50" borderRadius="md" shadow="sm" aria-labelledby="details">
       <VisuallyHidden as="h2" id="details">
@@ -194,8 +212,29 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
       </VisuallyHidden>
       <Table colorScheme="gray" size="md" role="presentation">
         <Tbody>
-          <Detail label="Publication" value={doc.pub_raw}>
-            {(pub_raw) => <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>}
+          <Detail label="Citation" value={citationData?.export ?? ' '}>
+            {(citation) => (
+              <Box>
+                <Menu>
+                  <MenuButton as={Button} rightIcon={<ChevronDownIcon />} variant="outline" size="sm">
+                    {selectedCiteFormat}
+                  </MenuButton>
+                  <MenuList>
+                    {values(exportFormats).map((f) => (
+                      <MenuItem
+                        key={f.value}
+                        justifyContent="space-between"
+                        onClick={() => setSelectedCiteFormat(f.label)}
+                      >
+                        {f.label}
+                        {selectedCiteFormat === f.label ? <CheckCircleIcon /> : null}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Menu>
+                <Box my={2}>{isLoadingCitation ? <Spinner m={5} /> : <Box fontSize="sm">{citation}</Box>}</Box>
+              </Box>
+            )}
           </Detail>
           <Detail label="Book Author(s)" value={doc.book_author} />
           <Detail label="Publication Date" value={doc.pubdate} />
