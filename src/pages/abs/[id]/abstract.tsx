@@ -23,7 +23,7 @@ import {
   useDisclosure,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { CheckCircleIcon, ChevronDownIcon, EditIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
+import { CheckCircleIcon, EditIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
 
 import { createUrlByType } from '@/components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@/components/AllAuthorsModal';
@@ -85,6 +85,20 @@ const AbstractPage: NextPage = () => {
   // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
+
+  const { settings } = useSettings();
+  const { defaultExportFormat, customFormats } = settings;
+  const [selectedCiteFormat, setSelectedCiteFormat] = useState<string>('BibTeX');
+
+  useEffect(() => {
+    setSelectedCiteFormat(defaultExportFormat);
+  }, [defaultExportFormat]);
+
+  const { data: citationData, isLoading: isLoadingCitation } = useGetExportCitation({
+    format: values(exportFormats).find((f) => f.label === selectedCiteFormat).id,
+    customFormat: selectedCiteFormat === exportFormats.custom.label ? customFormats[0].code : undefined,
+    bibcode: [doc.bibcode],
+  });
 
   const handleFeedback = () => {
     void router.push({ pathname: feedbackItems.record.path, query: { bibcode: doc.bibcode } });
@@ -159,6 +173,36 @@ const AbstractPage: NextPage = () => {
                 </Tooltip>
               )}
             </Flex>
+
+            <Flex dir="row">
+              <Menu>
+                <MenuButton as={Button} variant="ghost" size="sm">
+                  <TriangleDownIcon aria-label="change format" />
+                </MenuButton>
+                <MenuList>
+                  {values(exportFormats).map((f) => (
+                    <MenuItem
+                      key={f.value}
+                      justifyContent="space-between"
+                      onClick={() => setSelectedCiteFormat(f.label)}
+                    >
+                      {f.label}
+                      {selectedCiteFormat === f.label ? <CheckCircleIcon /> : null}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
+              {isLoadingCitation ? (
+                <Spinner m={5} />
+              ) : (
+                <Flex my={2} dir="row">
+                  <Box fontSize="sm" mx={5}>
+                    {citationData.export}
+                  </Box>
+                </Flex>
+              )}
+            </Flex>
+
             <Box as="section" py="2" aria-labelledby="abstract">
               <VisuallyHidden as="h2" id="abstract">
                 Abstract
@@ -191,20 +235,6 @@ interface IDetailsProps {
 const Details = ({ doc }: IDetailsProps): ReactElement => {
   const arxiv = (doc.identifier ?? ([] as string[])).find((v) => /^arxiv/i.exec(v));
 
-  const { settings } = useSettings();
-  const { defaultExportFormat, customFormats } = settings;
-  const [selectedCiteFormat, setSelectedCiteFormat] = useState<string>('BibTeX');
-
-  useEffect(() => {
-    setSelectedCiteFormat(defaultExportFormat);
-  }, [defaultExportFormat]);
-
-  const { data: citationData, isLoading: isLoadingCitation } = useGetExportCitation({
-    format: values(exportFormats).find((f) => f.label === selectedCiteFormat).id,
-    customFormat: selectedCiteFormat === exportFormats.custom.label ? customFormats[0].code : undefined,
-    bibcode: [doc.bibcode],
-  });
-
   return (
     <Box as="section" border="1px" borderColor="gray.50" borderRadius="md" shadow="sm" aria-labelledby="details">
       <VisuallyHidden as="h2" id="details">
@@ -212,29 +242,8 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
       </VisuallyHidden>
       <Table colorScheme="gray" size="md" role="presentation">
         <Tbody>
-          <Detail label="Citation" value={citationData?.export ?? ' '}>
-            {(citation) => (
-              <Box>
-                <Menu>
-                  <MenuButton as={Button} rightIcon={<ChevronDownIcon />} variant="outline" size="sm">
-                    {selectedCiteFormat}
-                  </MenuButton>
-                  <MenuList>
-                    {values(exportFormats).map((f) => (
-                      <MenuItem
-                        key={f.value}
-                        justifyContent="space-between"
-                        onClick={() => setSelectedCiteFormat(f.label)}
-                      >
-                        {f.label}
-                        {selectedCiteFormat === f.label ? <CheckCircleIcon /> : null}
-                      </MenuItem>
-                    ))}
-                  </MenuList>
-                </Menu>
-                <Box my={2}>{isLoadingCitation ? <Spinner m={5} /> : <Box fontSize="sm">{citation}</Box>}</Box>
-              </Box>
-            )}
+          <Detail label="Publication" value={doc.pub_raw}>
+            {(pub_raw) => <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>}
           </Detail>
           <Detail label="Book Author(s)" value={doc.book_author} />
           <Detail label="Publication Date" value={doc.pubdate} />
