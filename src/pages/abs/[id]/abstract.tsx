@@ -22,8 +22,15 @@ import {
   Tr,
   useDisclosure,
   VisuallyHidden,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
 } from '@chakra-ui/react';
-import { CheckCircleIcon, EditIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
+import { CheckCircleIcon, ChevronDownIcon, EditIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
 
 import { createUrlByType } from '@/components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@/components/AllAuthorsModal';
@@ -60,6 +67,8 @@ import { getAbstractParams } from '@/api/search/models';
 import { useSettings } from '@/lib/useSettings';
 import { useGetExportCitation } from '@/api/export/export';
 import { exportFormats } from '@/components/CitationExporter';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () =>
@@ -85,20 +94,7 @@ const AbstractPage: NextPage = () => {
   // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
-
-  const { settings } = useSettings();
-  const { defaultExportFormat, customFormats } = settings;
-  const [selectedCiteFormat, setSelectedCiteFormat] = useState<string>('BibTeX');
-
-  useEffect(() => {
-    setSelectedCiteFormat(defaultExportFormat);
-  }, [defaultExportFormat]);
-
-  const { data: citationData, isLoading: isLoadingCitation } = useGetExportCitation({
-    format: values(exportFormats).find((f) => f.label === selectedCiteFormat).id,
-    customFormat: selectedCiteFormat === exportFormats.custom.label ? customFormats[0].code : undefined,
-    bibcode: [doc.bibcode],
-  });
+  const { isOpen: isCitationOpen, onClose: onCloseCitation, onOpen: onOpenCitation } = useDisclosure();
 
   const handleFeedback = () => {
     void router.push({ pathname: feedbackItems.record.path, query: { bibcode: doc.bibcode } });
@@ -162,45 +158,26 @@ const AbstractPage: NextPage = () => {
               <Box display={{ base: 'block', lg: 'none' }}>
                 <AbstractSources doc={doc} style="menu" />
               </Box>
-              {isAuthenticated && (
-                <Tooltip label="add to library">
+              <Flex>
+                {isAuthenticated && (
+                  <Tooltip label="add to library">
+                    <IconButton
+                      aria-label="Add to library"
+                      icon={<FolderPlusIcon />}
+                      variant="ghost"
+                      onClick={onOpenAddToLibrary}
+                    />
+                  </Tooltip>
+                )}
+                <Tooltip label="Show citation">
                   <IconButton
-                    aria-label="Add to library"
-                    icon={<FolderPlusIcon />}
+                    aria-label="Show citation"
+                    icon={<FontAwesomeIcon icon={faQuoteLeft} />}
                     variant="ghost"
-                    onClick={onOpenAddToLibrary}
+                    onClick={onOpenCitation}
                   />
                 </Tooltip>
-              )}
-            </Flex>
-
-            <Flex dir="row">
-              <Menu>
-                <MenuButton as={Button} variant="ghost" size="sm">
-                  <TriangleDownIcon aria-label="change format" />
-                </MenuButton>
-                <MenuList>
-                  {values(exportFormats).map((f) => (
-                    <MenuItem
-                      key={f.value}
-                      justifyContent="space-between"
-                      onClick={() => setSelectedCiteFormat(f.label)}
-                    >
-                      {f.label}
-                      {selectedCiteFormat === f.label ? <CheckCircleIcon /> : null}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </Menu>
-              {isLoadingCitation ? (
-                <Spinner m={5} />
-              ) : (
-                <Flex my={2} dir="row">
-                  <Box fontSize="sm" mx={5}>
-                    {citationData.export}
-                  </Box>
-                </Flex>
-              )}
+              </Flex>
             </Flex>
 
             <Box as="section" py="2" aria-labelledby="abstract">
@@ -223,6 +200,7 @@ const AbstractPage: NextPage = () => {
         )}
       </Box>
       <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} bibcodes={[doc?.bibcode]} />
+      <CitationModal isOpen={isCitationOpen} onClose={onCloseCitation} bibcode={doc?.bibcode} />
     </AbsLayout>
   );
 };
@@ -463,3 +441,50 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     };
   }
 });
+
+const CitationModal = ({ isOpen, onClose, bibcode }: { isOpen: boolean; onClose: () => void; bibcode: string }) => {
+  const { settings } = useSettings();
+  const { defaultExportFormat, customFormats } = settings;
+  const [selectedCiteFormat, setSelectedCiteFormat] = useState<string>('BibTeX');
+
+  useEffect(() => {
+    setSelectedCiteFormat(defaultExportFormat);
+  }, [defaultExportFormat]);
+
+  const { data: citationData, isLoading: isLoadingCitation } = useGetExportCitation({
+    format: values(exportFormats).find((f) => f.label === selectedCiteFormat).id,
+    customFormat: selectedCiteFormat === exportFormats.custom.label ? customFormats[0].code : undefined,
+    bibcode: [bibcode],
+  });
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader></ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <Box>
+            <Menu>
+              <MenuButton as={Button} rightIcon={<ChevronDownIcon />} variant="outline" size="sm">
+                {selectedCiteFormat}
+              </MenuButton>
+              <MenuList>
+                {values(exportFormats).map((f) => (
+                  <MenuItem key={f.value} justifyContent="space-between" onClick={() => setSelectedCiteFormat(f.label)}>
+                    {f.label}
+                    {selectedCiteFormat === f.label ? <CheckCircleIcon /> : null}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
+            <Box my={2}>{isLoadingCitation ? <Spinner m={5} /> : <Box fontSize="sm">{citationData?.export}</Box>}</Box>
+          </Box>
+        </ModalBody>
+
+        <ModalFooter>
+          <Button onClick={onClose}>Close</Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};
