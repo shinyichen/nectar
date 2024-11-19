@@ -94,7 +94,6 @@ const AbstractPage: NextPage = () => {
   // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
-  const { isOpen: isCitationOpen, onClose: onCloseCitation, onOpen: onOpenCitation } = useDisclosure();
 
   const handleFeedback = () => {
     void router.push({ pathname: feedbackItems.record.path, query: { bibcode: doc.bibcode } });
@@ -169,14 +168,6 @@ const AbstractPage: NextPage = () => {
                     />
                   </Tooltip>
                 )}
-                <Tooltip label="Show citation">
-                  <IconButton
-                    aria-label="Show citation"
-                    icon={<FontAwesomeIcon icon={faQuoteLeft} />}
-                    variant="ghost"
-                    onClick={onOpenCitation}
-                  />
-                </Tooltip>
               </Flex>
             </Flex>
 
@@ -200,7 +191,6 @@ const AbstractPage: NextPage = () => {
         )}
       </Box>
       <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} bibcodes={[doc?.bibcode]} />
-      <CitationModal isOpen={isCitationOpen} onClose={onCloseCitation} bibcode={doc?.bibcode} />
     </AbsLayout>
   );
 };
@@ -212,6 +202,7 @@ interface IDetailsProps {
 }
 const Details = ({ doc }: IDetailsProps): ReactElement => {
   const arxiv = (doc.identifier ?? ([] as string[])).find((v) => /^arxiv/i.exec(v));
+  const { isOpen: isCitationOpen, onClose: onCloseCitation, onOpen: onOpenCitation } = useDisclosure();
 
   return (
     <Box as="section" border="1px" borderColor="gray.50" borderRadius="md" shadow="sm" aria-labelledby="details">
@@ -221,7 +212,20 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
       <Table colorScheme="gray" size="md" role="presentation">
         <Tbody>
           <Detail label="Publication" value={doc.pub_raw}>
-            {(pub_raw) => <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>}
+            {(pub_raw) => (
+              <>
+                <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>
+                <Tooltip label="Show citation">
+                  <IconButton
+                    aria-label="Show citation"
+                    icon={<FontAwesomeIcon icon={faQuoteLeft} />}
+                    variant="outline"
+                    onClick={onOpenCitation}
+                    mx={2}
+                  />
+                </Tooltip>
+              </>
+            )}
           </Detail>
           <Detail label="Book Author(s)" value={doc.book_author} />
           <Detail label="Publication Date" value={doc.pubdate} />
@@ -240,6 +244,7 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
           <Detail label="E-Print Comment(s)" value={doc.pubnote} />
         </Tbody>
       </Table>
+      <CitationModal isOpen={isCitationOpen} onClose={onCloseCitation} bibcode={doc?.bibcode} />
     </Box>
   );
 };
