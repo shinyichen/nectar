@@ -7,9 +7,9 @@ import { useHighlights } from './useHighlights';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetExportCitation } from '@/api/export/export';
 import { useSettings } from '@/lib/useSettings';
-import { ExportApiFormatKey } from '@/api/export/types';
+import { ExportApiFormatKey, ExportResponseOutputFormat } from '@/api/export/types';
 import { exportFormats } from '../CitationExporter';
-import { logger } from '@/logger';
+import { groupBy } from 'ramda';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
@@ -54,25 +54,19 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
       format: ExportApiFormatKey.agu,
       customFormat: defaultExportFormat === exportFormats.custom.label ? customFormats[0].code : undefined,
       bibcode: bibcodes,
-      sort: ['bibcode asc'],
+      outputformat: ExportResponseOutputFormat.INDIVIDUAL,
     },
     { enabled: !!settings?.defaultExportFormat },
   );
 
   // a map from bibcode to citation
   const defaultCitations = useMemo(() => {
-    const citationSet = new Map<string, string>();
-    try {
-      if (!!citationData) {
-        citationData.export.split('\n').forEach((c, index) => {
-          citationSet.set(bibcodes[index], c);
-        });
-      }
-    } catch (err) {
-      logger.error({ err }, 'Error processing citation data');
+    if (!!citationData?.docs) {
+      return groupBy<{ bibcode: string; reference: string }>((doc) => doc.bibcode, citationData.docs);
+    } else {
+      return {};
     }
-    return citationSet;
-  }, [citationData, bibcodes]);
+  }, [citationData]);
 
   return (
     <Flex
@@ -97,7 +91,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
           highlights={highlights?.[index] ?? []}
           isFetchingHighlights={allowHighlight && isFetchingHighlights}
           useNormCite={useNormCite}
-          defaultCitation={defaultCitations?.get(doc.bibcode)}
+          defaultCitation={defaultCitations?.[doc.bibcode]?.[0]?.reference}
         />
       ))}
     </Flex>

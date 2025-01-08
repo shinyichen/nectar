@@ -44,6 +44,11 @@ export enum ExportApiJournalFormat {
   FullName = 3,
 }
 
+export enum ExportResponseOutputFormat {
+  CLASSIC = 1,
+  INDIVIDUAL = 2,
+}
+
 export interface IExportApiParams {
   format: ExportApiFormatKey;
   customFormat?: string;
@@ -53,12 +58,15 @@ export interface IExportApiParams {
   keyformat?: [string];
   journalformat?: [ExportApiJournalFormat];
   maxauthor?: [number];
+  outputformat?: ExportResponseOutputFormat;
 }
 
 export interface IExportApiResponse {
-  export: string;
-  msg: string;
+  export?: string;
+  msg?: string;
   error?: ExportApiErrorKey;
+  num_docs?: number;
+  docs?: { bibcode: string; reference: string }[];
 }
 
 export const isExportApiFormat = (format: unknown): format is ExportApiFormatKey => {
