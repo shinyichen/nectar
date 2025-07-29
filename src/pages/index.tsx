@@ -1,6 +1,24 @@
 import { IADSApiSearchParams } from '@/api/search/types';
 import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
-import { Box, Center, Flex, Heading, Stack, Text, useMediaQuery, VisuallyHidden } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  Heading,
+  HStack,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalOverlay,
+  Stack,
+  Text,
+  useDisclosure,
+  useMediaQuery,
+  VisuallyHidden,
+} from '@chakra-ui/react';
 
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
@@ -18,6 +36,9 @@ import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
 import { SolrSort } from '@/api/models';
 import { SearchExamples } from '@/components/SearchExamples/SearchExamples';
 import { Pager } from '@/components/Pager/Pager';
+import { useSession } from '@/lib/useSession';
+
+const NEW_USER_KEY = 'new-user';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
@@ -28,6 +49,14 @@ const HomePage: NextPage = () => {
   const { clearQuery, updateQuery } = useIntermediateQuery();
   const clearSelectedDocs = useStore((state) => state.clearAllSelected);
   const setNotification = useStore((state) => state.setNotification);
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { isAuthenticated } = useSession();
+
+  useEffect(() => {
+    if (!isAuthenticated && localStorage.getItem(NEW_USER_KEY) === null) {
+      onOpen();
+    }
+  }, []);
 
   useEffect(() => {
     const setNotify = () => {
@@ -120,6 +149,7 @@ const HomePage: NextPage = () => {
         <input type="hidden" name="sort" value={normalizeSolrSort(sort)} />
         <input type="hidden" name="p" value="1" />
       </form>
+      <WelcomeModal isOpen={isOpen} onClose={onClose} />
     </Box>
   );
 };
@@ -255,6 +285,54 @@ const getListOfAppliedDefaultDatabases = (databases: IADSApiUserDataResponse['de
     }
   }
   return defaultDatabases;
+};
+
+const WelcomeModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const handleScrollToLearnMore = () => {
+    onClose();
+  };
+
+  const handleScrollToQuickStart = () => {
+    onClose();
+  };
+
+  const handleClosed = () => {
+    localStorage.setItem(NEW_USER_KEY, 'false');
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} onCloseComplete={handleClosed} size="lg">
+      <ModalOverlay />
+      <ModalContent>
+        <ModalCloseButton />
+        <ModalBody>
+          <Text fontWeight="thin" fontSize="2xl">
+            WELCOME TO THE
+          </Text>
+          <Text fontWeight="bold" mb={4} fontSize="2xl">
+            SciX Digital Library
+          </Text>
+          <Text>
+            Learn more about the SciX digital library and how it can support your scientific research in{' '}
+            <SimpleLink href="https://youtu.be/LeTFmhmPjs0" isExternal newTab>
+              this welcome video
+            </SimpleLink>{' '}
+            and brief user tutorial from Dr. Stephanie Jarmak.
+          </Text>
+        </ModalBody>
+        <ModalFooter>
+          <HStack>
+            <Button rounded={'full'} px={6} onClick={handleScrollToLearnMore}>
+              Learn More
+            </Button>
+            <Button rounded={'full'} px={6} variant="outline" onClick={handleScrollToQuickStart}>
+              Quick Start Guide
+            </Button>
+          </HStack>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
 };
 
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
