@@ -1,11 +1,14 @@
-import { Button, Flex, Icon, Text, VStack } from '@chakra-ui/react';
-import { FireIcon, ClockIcon, ArrowTrendingUpIcon } from '@heroicons/react/20/solid';
+import { Button, Flex, HStack, Icon, Text } from '@chakra-ui/react';
+import { FireIcon, ClockIcon } from '@heroicons/react/20/solid';
 import { SimpleLink } from '../SimpleLink';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { makeSearchParams } from '@/utils/common/search';
 import { useMemo } from 'react';
+import { ArrowForwardIcon } from '@chakra-ui/icons';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export const FeaturedPapers = ({ query }: { query: IADSApiSearchParams }) => {
+  const colors = useColorModeColors();
   const topPaperHref = useMemo(() => {
     const params = makeSearchParams({
       ...query,
@@ -22,37 +25,34 @@ export const FeaturedPapers = ({ query }: { query: IADSApiSearchParams }) => {
     return `/search?${params}`;
   }, [query]);
 
-  const trendingHref = useMemo(() => {
-    const params = makeSearchParams({
-      ...query,
-      q: `trending(${query.q})`,
-      sort: ['score desc'],
-    });
-    return `/search?${params}`;
-  }, [query]);
-
   return (
-    <Flex width="full">
+    <Flex width="full" gap={4}>
       <Button
         as={SimpleLink}
         href={topPaperHref}
         newTab
         variant="ghost"
         borderWidth={1}
-        borderRightRadius={0}
-        borderRightWidth={0}
+        shadow="md"
         flexGrow={1}
         borderLeftRadius="md"
-        h="20"
-        justifyContent="center"
+        h="16"
+        justifyContent="space-between"
         alignItems="center"
       >
-        <SimpleLink href={topPaperHref} newTab>
-          <VStack>
-            <Icon as={FireIcon} width={6} height={6} />
-            <Text>Top Papers</Text>
-          </VStack>
-        </SimpleLink>
+        <HStack>
+          <Icon
+            as={FireIcon}
+            width={6}
+            height={6}
+            p={2}
+            boxSizing="content-box"
+            bg={colors.highlightBackground}
+            borderRadius={100}
+          />
+          <Text>Top Papers</Text>
+        </HStack>
+        <ArrowForwardIcon boxSize={5} aria-hidden />
       </Button>
       <Button
         as={SimpleLink}
@@ -60,36 +60,25 @@ export const FeaturedPapers = ({ query }: { query: IADSApiSearchParams }) => {
         newTab
         variant="ghost"
         borderWidth={1}
-        borderRightRadius={0}
-        borderRightWidth={0}
-        borderLeftRadius={0}
+        shadow="md"
         flexGrow={1}
-        h="20"
-        justifyContent="center"
+        h="16"
+        justifyContent="space-between"
         alignItems="center"
       >
-        <VStack>
-          <Icon as={ClockIcon} width={6} height={6} />
+        <HStack>
+          <Icon
+            as={ClockIcon}
+            width={6}
+            height={6}
+            p={2}
+            boxSizing="content-box"
+            bg={colors.highlightBackground}
+            borderRadius={100}
+          />
           <Text>Most Recent</Text>
-        </VStack>
-      </Button>
-      <Button
-        as={SimpleLink}
-        variant="ghost"
-        href={trendingHref}
-        newTab
-        borderWidth={1}
-        flexGrow={1}
-        borderRightRadius="md"
-        borderLeftRadius={0}
-        h="20"
-        justifyContent="center"
-        alignItems="center"
-      >
-        <VStack>
-          <Icon as={ArrowTrendingUpIcon} width={6} height={6} />
-          <Text>Trending</Text>
-        </VStack>
+        </HStack>
+        <ArrowForwardIcon boxSize={5} aria-hidden />
       </Button>
       {/* <Flex borderWidth={1} flexGrow={1} borderRightRadius="md" h="20" justifyContent="center" alignItems="center">
         <SimpleLink href="" newTab>
