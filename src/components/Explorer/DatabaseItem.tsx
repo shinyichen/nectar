@@ -120,10 +120,10 @@ export const DatabaseItem = ({ facetValue }: { facetValue: IExplorerFacet['searc
         <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
           <Flex direction="column" flex={1}>
             <Heading as="h3" size="md" my={4}>
-              Popular Journals in {facet.label}
+              Popular Publications in {facet.label}
             </Heading>
             <FacetFieldTable
-              label="Popular Journals"
+              label="Popular Publications"
               query={{ q: query }}
               facetField="pub"
               makeSearchLink={(facetVal) => makeJournalSearchLink({ q: query }, facetVal)}

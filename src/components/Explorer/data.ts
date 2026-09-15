@@ -327,7 +327,7 @@ export const explorerCollections: Record<IExplorerCollection['id'], IExplorerCol
   data: {
     id: 'data',
     facetField: 'data_facet',
-    label: 'Data Bibliography',
+    label: 'Records linked to scientific archives',
     searchQueryField: 'data',
     image: '/images/browse/datacollection.jpg',
     facetSearchParams: { field: 'data_facet', level: 'root' },
@@ -399,7 +399,7 @@ export const explorerFacets: Record<IExplorerCollection['id'], IExplorerFacet[]>
 
   doctype: [
     {
-      label: 'Open Access',
+      label: 'e-print',
       icon: OpenAccessIcon,
       id: 'e-print',
       facetKey: '1/Article/e-print',
@@ -413,7 +413,7 @@ export const explorerFacets: Record<IExplorerCollection['id'], IExplorerFacet[]>
       searchQueryValue: 'Journal Article',
     },
     {
-      label: 'Dataset',
+      label: 'Datasets',
       icon: DatasetIcon,
       id: 'Dataset',
       facetKey: '1/Non-Article/Dataset',

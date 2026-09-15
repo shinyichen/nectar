@@ -147,10 +147,10 @@ export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; f
         <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
           <Flex direction="column" flex={1}>
             <Heading as="h3" size="md" my={4}>
-              Popular Journals in {facet}
+              Popular Publications in {facet}
             </Heading>
             <FacetFieldTable
-              label="Popular Journals"
+              label="Popular Publications"
               query={searchQueryParams}
               facetField="pub"
               makeSearchLink={(facetVal) => makeJournalSearchLink(searchQueryParams, facetVal)}
