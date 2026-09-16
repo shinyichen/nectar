@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
   Legend,
   MouseHandlerDataParam,
+  Brush,
 } from 'recharts';
 import { parseTitleFromKey } from '../SearchFacet/helpers';
 import { prop, sortBy } from 'ramda';
@@ -150,7 +151,7 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
   }
 
   return (
-    <ResponsiveContainer height={300} width="100%">
+    <ResponsiveContainer height={350} width="100%">
       <AreaChart
         accessibilityLayer
         responsive
@@ -161,8 +162,8 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
         layout="horizontal"
         margin={{
           bottom: 0,
-          left: 0,
-          right: 30,
+          left: 10,
+          right: 50,
           top: 10,
         }}
         stackOffset="none"
@@ -174,7 +175,7 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
       >
         <CartesianGrid strokeDasharray="3 3" />
         <YAxis />
-        <XAxis dataKey="year" domain={['auto', 'auto']} scale="time" type="number" />
+        <XAxis dataKey="year" domain={['auto', 'auto']} scale="time" type="number" allowDataOverflow />
         {type === 'doctype'
           ? doctypeLegends.map((dt, i) => (
               <Area key={`area-${i}`} dataKey={dt.name} fill={dt.color} stackId="1" stroke={dt.color} type="monotone" />
@@ -184,6 +185,8 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
             ))}
         <Tooltip wrapperStyle={{ zIndex: 100 }} />
         <Legend />
+
+        <Brush dataKey="year" height={20} stroke="#6366f1" fill="transparent" startIndex={0} />
       </AreaChart>
     </ResponsiveContainer>
   );
