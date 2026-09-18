@@ -20,7 +20,9 @@ const databaseFacetIds = ['astrophysics', 'heliophysics', 'planetary', 'earthsci
 export const FacetItem = ({ cid, facetKey }: { cid: IExplorerCollection['id']; facetKey: string }) => {
   const collection = explorerCollections[cid];
 
-  const facet = parseTitleFromKey(facetKey);
+  const regex = /^[01]\/(.*)/;
+
+  const facet = regex.test(facetKey) ? parseTitleFromKey(facetKey) : facetKey;
 
   const databaseFacets = databaseFacetIds.map((id) => databases[id]);
 
