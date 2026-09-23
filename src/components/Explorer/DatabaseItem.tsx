@@ -11,7 +11,7 @@ import { IADSApiSearchParams } from '@/api/search/types';
 import { useEffect, useState } from 'react';
 import { FeaturedPapers } from './FeaturedPapers';
 import { FacetFieldTable } from './FacetFieldTable';
-import { SubFacetCard } from './SubFacetCard';
+import { SubFacetCard, SubFacetSimpleCard } from './SubFacetCard';
 import { OverTimeChart } from './OverTimeChart';
 
 const cid = 'database';
@@ -23,7 +23,9 @@ export const DatabaseItem = ({ facetValue }: { facetValue: IExplorerFacet['searc
 
   const subFacets = facet.subset?.map((f) => databases[f]);
 
-  const [subFacet, setSubFacet] = useState<IExplorerFacet>(null); // optional, i.e astrophysics
+  const [subCollection, setSubCollection] = useState<IExplorerFacet>(null); // optional, i.e astrophysics
+
+  const [subFacetDoctype, setSubFacetDoctype] = useState<IExplorerFacet>(null);
 
   // The main query (q) for the page (i.e. database:astrophysics)
   const [query, setQuery] = useState<IADSApiSearchParams['q']>(
@@ -43,14 +45,26 @@ export const DatabaseItem = ({ facetValue }: { facetValue: IExplorerFacet['searc
 
   // apply sub-facet
   useEffect(() => {
-    setQuery(`${collection.searchQueryField}:"${subFacet ? subFacet.searchQueryValue : facet.searchQueryValue}"`);
-  }, [subFacet]);
+    const newQuery = `${collection.searchQueryField}:"${
+      subCollection ? subCollection.searchQueryValue : facet.searchQueryValue
+    }"`;
+
+    setQuery(`${newQuery}${subFacetDoctype ? ` doctype:"${subFacetDoctype.searchQueryValue}"` : ''}`);
+  }, [subCollection, subFacetDoctype]);
 
   const handleSelectSubset = (selected: IExplorerFacet['id']) => {
-    if (subFacet?.id === selected) {
-      setSubFacet(null);
+    if (subCollection?.id === selected) {
+      setSubCollection(null);
     } else {
-      setSubFacet(subFacets.find((d) => d.id === selected));
+      setSubCollection(subFacets.find((d) => d.id === selected));
+    }
+  };
+
+  const handleSelectDoctype = (selected: IExplorerFacet['id']) => {
+    if (subFacetDoctype?.id === selected) {
+      setSubFacetDoctype(null);
+    } else {
+      setSubFacetDoctype(explorerFacets.doctype.find((d) => d.id === selected));
     }
   };
 
@@ -103,13 +117,28 @@ export const DatabaseItem = ({ facetValue }: { facetValue: IExplorerFacet['searc
                   recordCount={
                     countData?.[collection.facetField].buckets.find((db) => db.val === d.facetKey)?.count || 0
                   }
-                  selected={d.id === subFacet?.id}
+                  selected={d.id === subCollection?.id}
                   onSelect={handleSelectSubset}
                 />
               ))}
             </Flex>
           </Box>
         )}
+        <Box as="section" w="full">
+          <Heading as="h3" size="md" mb={2}>
+            Document Types
+          </Heading>
+          <Flex gap={4} width="full" flexWrap="wrap">
+            {explorerFacets.doctype.map((d) => (
+              <SubFacetSimpleCard
+                key={`doctype-${d.label}`}
+                facet={d}
+                selected={d.id === subFacetDoctype?.id}
+                onSelect={handleSelectDoctype}
+              />
+            ))}
+          </Flex>
+        </Box>
         <FeaturedPapers query={{ q: query }} />
         <Flex direction="column">
           <Heading as="h3" size="md" my={4}>
