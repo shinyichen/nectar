@@ -79,18 +79,20 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
   const transformedData = useMemo(() => {
     if (data && data.count > 0 && type === 'doctype') {
       const temp = data.year.buckets.map((yearBucket) => {
-        return yearBucket.doctype.buckets.reduce(
-          (acc, doctypeBucket) => {
-            const doctype = parseTitleFromKey(doctypeBucket.val as string);
-            const count = doctypeBucket.count;
-            if (highlightDoctypes.includes(doctype)) {
-              return { ...acc, [doctype]: count };
-            } else {
-              return { ...acc, Others: ((acc.Others as number) || 0) + count };
-            }
-          },
-          { year: yearBucket.val } as Record<string, number | string>,
-        );
+        return yearBucket.doctype.buckets
+          .filter((doctypeBucket) => !(doctypeBucket.val as string).startsWith('0/'))
+          .reduce(
+            (acc, doctypeBucket) => {
+              const doctype = parseTitleFromKey(doctypeBucket.val as string);
+              const count = doctypeBucket.count;
+              if (highlightDoctypes.includes(doctype)) {
+                return { ...acc, [doctype]: count };
+              } else {
+                return { ...acc, Others: ((acc.Others as number) || 0) + count };
+              }
+            },
+            { year: yearBucket.val } as Record<string, number | string>,
+          );
       });
 
       // fill any missing data
