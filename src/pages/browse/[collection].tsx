@@ -99,8 +99,9 @@ const CollectionPage: NextPage<ICollectionPageProps> = ({ collection }) => {
     return collectionData.filter((d) => {
       const facetKey = getFacetValue(d.val as string).toLowerCase();
       const search = debouncedSearchTerm.toLowerCase();
-      const desc = facetDetails[d.val as string]?.title?.toLowerCase();
-      return facetKey.includes(search) || desc?.includes(search);
+      const title = facetDetails[d.val as string]?.title?.toLowerCase();
+      const desc = facetDetails[d.val as string]?.desc?.toLowerCase();
+      return facetKey.includes(search) || title?.includes(search) || desc?.includes(search);
     });
   }, [collectionData, debouncedSearchTerm, facetDetails]);
 
