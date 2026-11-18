@@ -130,7 +130,26 @@ export const OverTimeChart = ({ type, query }: { type: 'doctype' | 'refereed'; q
     }
   }, [data, type]);
 
-  const handleClick = (state: MouseHandlerDataParam) => {
+  const handleClick = (state: MouseHandlerDataParam, event: React.MouseEvent<HTMLDivElement>) => {
+    if (typeof window === 'undefined' || !state) {
+      return;
+    }
+
+    // state is polluted when first rendered (avtiveLabel is set to first data instead of undefined)
+    // ignore click on the slider, axis and legend
+    const grid = event.currentTarget.querySelector('.recharts-cartesian-grid');
+    if (!grid) {
+      return;
+    }
+
+    const r = grid.getBoundingClientRect();
+    const inPlot =
+      event.clientX >= r.left && event.clientX <= r.right && event.clientY >= r.top && event.clientY <= r.bottom;
+
+    if (!inPlot) {
+      return;
+    }
+
     if (typeof window !== 'undefined' && state.activeLabel) {
       const year = state.activeLabel;
       const url = makeYearSearchLink(query, year.toLocaleString());
