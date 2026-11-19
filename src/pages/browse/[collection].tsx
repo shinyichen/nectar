@@ -1,6 +1,6 @@
 import { useGetSearchFacetJSON } from '@/api/search/search';
 import { bibgroupDetails } from '@/components/Explorer/bibgroup_data';
-import { explorerCollections } from '@/components/Explorer/data';
+import { databases, explorerCollections } from '@/components/Explorer/data';
 import { dataDetails } from '@/components/Explorer/data_data';
 import { doctypeDetails } from '@/components/Explorer/doctype_data';
 import { allRecordsQuery, searchFacetDefaultParams } from '@/components/Explorer/helpers';
@@ -28,6 +28,7 @@ import {
   InputGroup,
   InputRightElement,
   IconButton,
+  useRadioGroup,
 } from '@chakra-ui/react';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -38,6 +39,7 @@ import { useDebounce } from '@/lib/useDebounce';
 import { ControlledPaginationControls } from '@/components/Pagination/ControlledPaginationControls';
 import { NumPerPageType } from '@/types';
 import { composeNextGSSP } from '@/ssr-utils';
+import { DatabaseRadio } from '@/components/Explorer/DatabaseRadio';
 
 interface ICollectionPageProps {
   collection: Exclude<ExplorerCollectionID, 'database'>;
@@ -54,17 +56,28 @@ const CollectionPage: NextPage<ICollectionPageProps> = ({ collection }) => {
 
   const [searchTerm, setSearchTerm] = useState<string>('');
 
+  const [selectedDatabase, setSelectedDatabase] = useState<string>('all');
+
+  const { getRootProps, getRadioProps } = useRadioGroup({
+    name: 'database',
+    defaultValue: 'all',
+    onChange: setSelectedDatabase,
+  });
+
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const searchParams = useMemo(() => {
     const { facetSearchParams } = explorerCollections[collection];
     return {
       ...allRecordsQuery,
+      ...(selectedDatabase !== 'all' && {
+        q: `collection: ${selectedDatabase}`,
+      }),
       filter: [] as string[],
       field: facetSearchParams.field,
       ['json.facet']: getSearchFacetParams({ ...searchFacetDefaultParams, ...facetSearchParams }),
     };
-  }, [collection]);
+  }, [collection, selectedDatabase]);
 
   // fetch collection (facet) data
   const { data, isError, isLoading, error } = useGetSearchFacetJSON(searchParams);
@@ -112,7 +125,7 @@ const CollectionPage: NextPage<ICollectionPageProps> = ({ collection }) => {
 
   useEffect(() => {
     setPageIndex(0);
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, selectedDatabase]);
 
   const onChangePageIndex = (newPageIndex: number) => {
     setPageIndex(newPageIndex);
@@ -160,6 +173,16 @@ const CollectionPage: NextPage<ICollectionPageProps> = ({ collection }) => {
             />
           </InputRightElement>
         </InputGroup>
+        <Flex width="full" flexWrap="wrap" gap={4} {...getRootProps()}>
+          <DatabaseRadio value="all" {...getRadioProps({ value: 'all' })}>
+            All
+          </DatabaseRadio>
+          {Object.values(databases).map((db) => (
+            <DatabaseRadio key={db.id} {...getRadioProps({ value: db.facetKey })}>
+              {db.label}
+            </DatabaseRadio>
+          ))}
+        </Flex>
         <Flex as="section" gap={4} width="full" flexWrap="wrap">
           {isLoading ? (
             <LoadingSkeleton />
