@@ -271,8 +271,8 @@ const CollectionPage: NextPage<ICollectionPageProps> = ({ collection }) => {
 
 const LoadingSkeleton = () => (
   <>
-    {[...Array(12)].map((_, index) => (
-      <Skeleton key={`skeleton-${index}`} minW={270} maxW={270} minH={100} flex={1} />
+    {[...Array(24)].map((_, index) => (
+      <Skeleton key={`skeleton-${index}`} minW={280} minH={100} flex={1} />
     ))}
   </>
 );
